@@ -13,6 +13,20 @@ you can use ``BetterSlider/BetterSlider``.
 
 If you need a slider control to select a range of values, you can use ``BetterSlider/RangeSlider``.
 
+## Documentation
+
+The documentation is available [here](https://lukepistrol.github.io/BetterSlider/documentation/betterslider).
+
+You can also have a look at the [sample project](https://github.com/lukepistrol/BetterSlider/tree/main/BetterSliderDemo/BetterSliderDemo).
+
+## Usage
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/lukepistrol/BetterSlider.git", from: <#Version#>)
+]
+```
+
 ## Contribution
 
 If you have any ideas on how to take this further I'm happy to discuss things in an issue.
