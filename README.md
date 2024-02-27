@@ -1,5 +1,9 @@
 # BetterSlider
 
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Flukepistrol%2FBetterSlider%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/lukepistrol/BetterSlider)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Flukepistrol%2FBetterSlider%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/lukepistrol/BetterSlider)
+[![](https://img.shields.io/github/license/lukepistrol/BetterSlider)](https://github.com/lukepistrol/BetterSlider/blob/main/LICENSE)
+
 This package provides a custom slider control that allows for more customization than the standard `Slider` control.
 
 ## Overview
