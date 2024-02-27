@@ -1,0 +1,16 @@
+name: lint
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    container: ghcr.io/realm/swiftlint:latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Run SwiftLint
+        run: swiftlint --strict
+

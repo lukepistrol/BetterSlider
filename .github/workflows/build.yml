@@ -1,0 +1,14 @@
+name: build
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Build iOS
+        run: exec ./.github/scripts/build.sh
