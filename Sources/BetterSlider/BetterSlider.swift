@@ -58,7 +58,7 @@ public struct BetterSlider<LowerValueLabel: View, UpperValueLabel: View>: View {
     @Environment(\.sliderHandleColor) private var sliderHandleStyle
     @Environment(\.hapticFeedbackEnabled) private var hapticFeedbackEnabled
 
-    @Binding private var value: Double
+    @Binding private var _value: Double
     private let range: ClosedRange<Double>
     private var step: Double.Stride?
     private var minimumValueLabel: LowerValueLabel?
@@ -68,11 +68,19 @@ public struct BetterSlider<LowerValueLabel: View, UpperValueLabel: View>: View {
     private func offset(forWidth width: Double, isHandle: Bool = true) -> Double {
         let rangeWidth = range.upperBound - range.lowerBound
         if isHandle {
-            return ((value - range.lowerBound) / rangeWidth) * (width - sliderHandleSize)
+            return ((value.wrappedValue - range.lowerBound) / rangeWidth) * (width - sliderHandleSize)
         } else {
             return width - (
-                ((value - range.lowerBound) / rangeWidth) * (width - sliderHandleSize) + sliderHandleSize / 2
+                ((value.wrappedValue - range.lowerBound) / rangeWidth) * (width - sliderHandleSize) + sliderHandleSize / 2
             )
+        }
+    }
+
+    private var value: Binding<Double> {
+        Binding {
+            _value.clamped(to: range)
+        } set: { newValue in
+            _value = newValue.clamped(to: range)
         }
     }
 
@@ -82,7 +90,7 @@ public struct BetterSlider<LowerValueLabel: View, UpperValueLabel: View>: View {
         step: Double.Stride? = nil,
         onEditingChanged: @escaping (Bool) -> Void = { _ in }
     ) where LowerValueLabel == EmptyView, UpperValueLabel == EmptyView {
-        self._value = value
+        self.__value = value
         self.range = range
         self.step = step
         self.onEditingChanged = onEditingChanged
@@ -96,7 +104,7 @@ public struct BetterSlider<LowerValueLabel: View, UpperValueLabel: View>: View {
         maximumValueLabel: () -> UpperValueLabel,
         onEditingChanged: @escaping (Bool) -> Void = { _ in }
     ) {
-        self._value = value
+        self.__value = value
         self.range = range
         self.step = step
         self.minimumValueLabel = minimumValueLabel()
@@ -131,8 +139,8 @@ public struct BetterSlider<LowerValueLabel: View, UpperValueLabel: View>: View {
         .onChange(of: isEditing) { newValue in
             onEditingChanged(newValue)
         }
-        .customSensoryFeedback(value: value, isEditing: isEditing, enabled: hapticFeedbackEnabled)
-        .accessibilityValue(Text(value, format: .number))
+        .customSensoryFeedback(value: value.wrappedValue, isEditing: isEditing, enabled: hapticFeedbackEnabled)
+        .accessibilityValue(Text(value.wrappedValue, format: .number))
     }
 
     @State private var isEditing = false
@@ -147,7 +155,7 @@ public struct BetterSlider<LowerValueLabel: View, UpperValueLabel: View>: View {
                     let normalizedStep = step / (range.upperBound - range.lowerBound)
                     offset = (offset / normalizedStep).rounded() * normalizedStep
                 }
-                self.value = max(
+                self.value.wrappedValue = max(
                     min(
                         offset * (
                             range.upperBound - range.lowerBound
@@ -160,5 +168,11 @@ public struct BetterSlider<LowerValueLabel: View, UpperValueLabel: View>: View {
             .onEnded { _ in
                 isEditing = false
             }
+    }
+}
+
+extension Double {
+    func clamped(to range: ClosedRange<Double>) -> Double {
+        max(min(self, range.upperBound), range.lowerBound)
     }
 }

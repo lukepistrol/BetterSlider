@@ -40,7 +40,7 @@ public struct RangeSlider<LowerValueLabel: View, UpperValueLabel: View>: View {
     @Environment(\.sliderHandleColor) private var sliderHandleStyle
     @Environment(\.hapticFeedbackEnabled) private var hapticFeedbackEnabled
 
-    @Binding private var selection: ClosedRange<Double>
+    @Binding private var _selection: ClosedRange<Double>
     private let range: ClosedRange<Double>
     private let step: Double.Stride?
     private var onEditingChanged: (Bool) -> Void
@@ -53,7 +53,7 @@ public struct RangeSlider<LowerValueLabel: View, UpperValueLabel: View>: View {
         step: Double.Stride? = nil,
         onEditingChanged: @escaping (Bool) -> Void = { _ in }
     ) where LowerValueLabel == EmptyView, UpperValueLabel == EmptyView {
-        self._selection = selection
+        self.__selection = selection
         self.range = range
         self.step = step
         self.onEditingChanged = onEditingChanged
@@ -67,7 +67,7 @@ public struct RangeSlider<LowerValueLabel: View, UpperValueLabel: View>: View {
         maximumValueLabel: () -> UpperValueLabel,
         onEditingChanged: @escaping (Bool) -> Void = { _ in }
     ) {
-        self._selection = selection
+        self.__selection = selection
         self.range = range
         self.step = step
         self.minimumValueLabel = minimumValueLabel()
@@ -75,24 +75,31 @@ public struct RangeSlider<LowerValueLabel: View, UpperValueLabel: View>: View {
         self.onEditingChanged = onEditingChanged
     }
 
+    private var selection: Binding<ClosedRange<Double>> {
+        Binding {
+            _selection.clamped(to: range)
+        } set: { newValue in
+            _selection = newValue.clamped(to: range)
+        }
+    }
+
     private func offset(forWidth width: Double, at position: Index, isHandle: Bool = true) -> Double {
         let rangeWidth = range.upperBound - range.lowerBound
-        let offset = if isHandle {
-            ((position.value(in: selection) - range.lowerBound) / rangeWidth) * (width - sliderHandleSize)
+        if isHandle {
+            return ((position.value(in: selection.wrappedValue) - range.lowerBound) / rangeWidth) * (width - sliderHandleSize)
         } else {
             switch position {
             case .lower:
-                (
-                    (position.value(in: selection) - range.lowerBound) / rangeWidth
+                return (
+                    (position.value(in: selection.wrappedValue) - range.lowerBound) / rangeWidth
                 ) * (width - sliderHandleSize) + sliderHandleSize / 2
             case .upper:
-                width - (
-                    ((position.value(in: selection) - range.lowerBound) / rangeWidth) *
+                return width - (
+                    ((position.value(in: selection.wrappedValue) - range.lowerBound) / rangeWidth) *
                     (width - sliderHandleSize) + sliderHandleSize / 2
                 )
             }
         }
-        return offset
     }
 
     public var body: some View {
@@ -132,8 +139,8 @@ public struct RangeSlider<LowerValueLabel: View, UpperValueLabel: View>: View {
         .onChange(of: isEditing) { newValue in
             onEditingChanged(newValue)
         }
-        .customSensoryFeedback(value: selection, isEditing: isEditing, enabled: hapticFeedbackEnabled)
-        .accessibilityValue(Text("\(selection.lowerBound) to \(selection.upperBound)"))
+        .customSensoryFeedback(value: selection.wrappedValue, isEditing: isEditing, enabled: hapticFeedbackEnabled)
+        .accessibilityValue(Text("\(selection.wrappedValue.lowerBound) to \(selection.wrappedValue.upperBound)"))
     }
 
     @State private var isEditing = false
@@ -144,7 +151,7 @@ public struct RangeSlider<LowerValueLabel: View, UpperValueLabel: View>: View {
             .onChanged { value in
                 isEditing = true
                 if initialSelection == nil {
-                    initialSelection = selection
+                    initialSelection = selection.wrappedValue
                 }
                 if let initialSelection {
                     let width = geometry.size.width - sliderHandleSize
@@ -153,7 +160,7 @@ public struct RangeSlider<LowerValueLabel: View, UpperValueLabel: View>: View {
                         let normalizedStep = step / (range.upperBound - range.lowerBound)
                         offset = (offset / normalizedStep).rounded() * normalizedStep
                     }
-                    self.selection = switch index {
+                    self.selection.wrappedValue = switch index {
                     case .lower:
                         max(
                             min(
@@ -194,5 +201,11 @@ public struct RangeSlider<LowerValueLabel: View, UpperValueLabel: View>: View {
                 return range.upperBound
             }
         }
+    }
+}
+
+extension ClosedRange<Double> {
+    func clamped(to range: ClosedRange<Double>) -> ClosedRange<Double> {
+        return lowerBound.clamped(to: range)...upperBound.clamped(to: range)
     }
 }
