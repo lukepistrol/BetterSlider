@@ -86,7 +86,8 @@ public struct RangeSlider<LowerValueLabel: View, UpperValueLabel: View>: View {
     private func offset(forWidth width: Double, at position: Index, isHandle: Bool = true) -> Double {
         let rangeWidth = range.upperBound - range.lowerBound
         if isHandle {
-            return ((position.value(in: selection.wrappedValue) - range.lowerBound) / rangeWidth) * (width - sliderHandleSize)
+            return ((position.value(in: selection.wrappedValue) - range.lowerBound) / rangeWidth) *
+            (width - sliderHandleSize)
         } else {
             switch position {
             case .lower:

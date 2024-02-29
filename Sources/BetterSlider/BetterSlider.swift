@@ -71,7 +71,8 @@ public struct BetterSlider<LowerValueLabel: View, UpperValueLabel: View>: View {
             return ((value.wrappedValue - range.lowerBound) / rangeWidth) * (width - sliderHandleSize)
         } else {
             return width - (
-                ((value.wrappedValue - range.lowerBound) / rangeWidth) * (width - sliderHandleSize) + sliderHandleSize / 2
+                ((value.wrappedValue - range.lowerBound) / rangeWidth) *
+                (width - sliderHandleSize) + sliderHandleSize / 2
             )
         }
     }
